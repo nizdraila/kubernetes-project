@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gitops-template
+  namespace: argocd
+spec:
+  sourceRepos:
+  - '*'
+  destinations:
+  - name: in-cluster
+    namespace: '*'
+    server: https://kubernetes.default.svc
+  clusterResourceBlacklist:
+  - group: '*'
+    kind: ClusterRole
+  - group: '*'
+    kind: ClusterRoleBinding
+  - group: '*'
+    kind: StorageClass
+  namespaceResourceBlacklist:
+  - group: '*'
+    kind: LimitRange
+  - group: '*'
+    kind: ResourceQuota
+  - group: '*'
+    kind: NetworkPolicy
+  roles:
+  - groups:
+    - 9b2761d9-1a27-47cc-b363-63a266c22d9b
+    name: gitops-template-contributor-role
+    policies:
+    - p, proj:gitops-template:gitops-template-contributor-role, applications, *, gitops-template/*, allow 
+    - p, proj:gitops-template:gitops-template-contributor-role, logs, *, gitops-template/*, allow
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application #Argocd
+metadata:
+  name: gitops-template-app
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization-dev
+    argocd-image-updater.argoproj.io/image-list: 'network-multitool=aksdevarmacruw2001.azurecr.io/network-multitool'
+    argocd-image-updater.argoproj.io/sam-settlement-webmethods-integration.update-strategy: newest-build
+spec:
+  destination:
+    namespace: gitops-template
+    server: https://kubernetes.default.svc
+  project: gitops-template
+  source:
+    path: k8s-manifest/overlays/dev
+    repoURL: 'https://github.com/SEApplicationsOrg/gitops-template'
+    targetRevision: main
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+      - PruneLast=true
+---

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resouces-quota-range
+spec:
+  hard:
+    limits.cpu: "8"
+    limits.memory: 16Gi

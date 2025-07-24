@@ -1,0 +1,36 @@
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterExternalSecret
+metadata:
+  name: gitops-template-app-manifests-credentials
+  namespace: arogcd
+spec:
+  namespaces:
+  - argocd
+  refreshTime: 1h  # rate ESO pulls Azure Key Vault
+  externalSecretSpec:
+    secretStoreRef:
+      kind: ClusterSecretStore
+      name: akv-aksdevarmkeyuw2001  # Azure Key Vault https://aksdevarmkeyuw2001.vault.azure.net/
+    target:
+      name: gitops-template-app-manifests-repo  # name of the k8s Secret to be created
+      creationPolicy: Owner
+      template:
+        type: Opaque
+        metadata:
+          labels:
+            argocd.argoproj.io/secret-type: repository
+        data: 
+          githubAppID: "957768"
+          githubAppInstallationID: "53323747"
+          project: gitops-template
+          type: git
+          url: https://github.com/SEApplicationsOrg/gitops-template #ingress
+          githubAppPrivateKey: "{{ .githubAppPrivateKey | toString }}"
+    data:
+    - secretKey: githubAppPrivateKey
+      remoteRef:
+        conversionStrategy: Default	
+        decodingStrategy: None
+        metadataPolicy: None
+        key: secret/github-app-private-key 
