@@ -21,7 +21,7 @@ spec:
           labels:
             argocd.argoproj.io/secret-type: repository
         data: 
-          githubAppID: "957768"
+          githubAppID: "1661220"
           githubAppInstallationID: "53323747"
           project: gitops-template
           type: git

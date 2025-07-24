@@ -4,4 +4,8 @@ kind: Kustomization-dev
 resources:
 - app.yaml
 - app-manifests-repo.yaml
-- ../../base
+- kustomization.yaml
+- limits.yaml
+- namespace.yaml
+- network-policy.yaml
+- quota-default.yaml
