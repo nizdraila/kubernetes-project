@@ -1,5 +1,6 @@
 import jwt
-import timefrom pathlib import Path
+import timefrom
+import Path
 
 private_key = Path("path_to_private_key").read_text()
 
