@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-kustomize-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nizdraila/kubernetes-project.git
+    targetRevision: HEAD
+    path: k8s-manifests
+    kustomize:
+      commonLabels:
+        app.kubernetes.io/managed-by: argocd
+      commonAnnotations:
+        deployed-by: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
