@@ -1,0 +1,47 @@
+---
+- name: Clone GitHub repo and duplicate a folder
+  hosts: localhost
+  # become: true
+  vars:
+    repo_url: "https://github.com/nizdraila/kubernetes-project.git"
+    clone_path: "/home/nizdraila/suncor-repos/kubernetes-automation/location"
+    folder_to_duplicate: "k8s-manifests"
+    new_folder_name: "duplicated-folder"
+    old_string: "dfjnidfnv"
+    new_string: "aaaaa"
+  tasks:
+    - name: Clone the GitHub repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ clone_path }}"
+        version: main
+        clone: true
+        update: true
+        accept_hostkey: true
+
+    - name: Ensure destination parent directory for duplicate exists
+      ansible.builtin.file:
+        path: "{{ clone_path }}/{{ new_folder_name | dirname }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy the folder
+      ansible.builtin.command: >
+        cp -r "{{ clone_path }}/{{ folder_to_duplicate }}"
+              "{{ clone_path }}/{{ new_folder_name }}"
+
+    - name: Find all .yaml and .yml files
+      ansible.builtin.find:
+        paths: "./location/"
+        recurse: true
+        file_type: file
+        patterns:
+          - "*.yaml"
+      register: yaml_files
+
+    - name: Replace old string with new string in YAML files
+      ansible.builtin.replace:
+        path: "{{ item.path }}"
+        regexp: "{{ old_string | regex_escape }}"
+        replace: "{{ new_string }}"
+      loop: "{{ yaml_files.files }}"
