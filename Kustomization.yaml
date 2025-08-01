@@ -5,3 +5,4 @@ resources:
 - limits.yaml
 - quota-default.yaml
 - network-policy.yaml
+- dfjnidfnv
